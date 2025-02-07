@@ -1,8 +1,5 @@
-README.md
-markdown
-Copy
-Edit
-# 🏥 Hospital Readmission Prediction
+
+#  Hospital Readmission Prediction
 
 **Hospital Readmission Prediction** is a data science project that uses machine learning techniques to predict **Excess Readmission Ratios** for hospitals. The goal is to assist healthcare providers in identifying key factors leading to patient readmissions and optimizing strategies to improve patient care and hospital performance.
 
