@@ -8,7 +8,7 @@ Edit
 
 ---
 
-## 📌 **Project Overview**
+##  **Project Overview**
 
 Hospital readmissions are a critical metric for evaluating healthcare quality. Readmission penalties, like those under the **CMS Hospital Readmissions Reduction Program (HRRP)**, have made it essential for hospitals to track and minimize avoidable readmissions. 
 
@@ -19,7 +19,7 @@ This project involves:
 
 ---
 
-## 🛠️ **Problem Statement**
+##  **Problem Statement**
 
 ### **Objective:**
 Predict whether hospitals have **excess readmission rates** and understand the **key drivers** of these predictions.
@@ -31,7 +31,7 @@ Predict whether hospitals have **excess readmission rates** and understand the *
 
 ---
 
-## 📊 **Dataset Description**
+##  **Dataset Description**
 
 The project is based on the **FY 2024 CMS Hospital Readmissions Reduction Program dataset**. It includes metrics for ~18,000 hospitals across the US.
 
@@ -48,7 +48,7 @@ The project is based on the **FY 2024 CMS Hospital Readmissions Reduction Progra
 
 ---
 
-## 🚀 **Solution Workflow**
+##  **Solution Workflow**
 
 ### **1️⃣ Data Cleaning**
 - **Missing Values**:
@@ -75,7 +75,7 @@ Five models were trained for comparative analysis:
 
 ---
 
-## 🔍 **Results & Insights**
+##  **Results & Insights**
 
 ### **Model Performance**
 | Model             | Mean Squared Error (MSE) | R² Score |
@@ -103,7 +103,7 @@ Edit
 
 ---
 
-## 🚀 **How to Run the Project**
+##  **How to Run the Project**
 
 ### **Clone the Repository**
 ```bash
@@ -144,13 +144,3 @@ Copy
 Edit
 
 ---
-
-### **📌 Steps to Add the README**
-
-1. Save the content above as a file named **`README.md`**.
-**2. Add it to your repository:**
-   ```bash
-   %cd Hospital-Readmission-Prediction
-   !git add README.md
-   !git commit -m "Added detailed README.md"
-   !git push origin main
