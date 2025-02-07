@@ -148,7 +148,7 @@ Edit
 ### **📌 Steps to Add the README**
 
 1. Save the content above as a file named **`README.md`**.
-2. Add it to your repository:
+**2. Add it to your repository:**
    ```bash
    %cd Hospital-Readmission-Prediction
    !git add README.md
