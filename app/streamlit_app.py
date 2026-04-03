@@ -18,12 +18,14 @@ st.set_page_config(
     layout='wide'
 )
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'xgboost_model.pkl')
-SCALER_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'scaler.pkl')
-METRICS_PATH = os.path.join(os.path.dirname(__file__), '..', 'assets', 'metrics.json')
-IMPORTANCE_PATH = os.path.join(os.path.dirname(__file__), '..', 'assets', 'feature_importance.csv')
-SHAP_BAR_PATH = os.path.join(os.path.dirname(__file__), '..', 'assets', 'shap_bar.png')
-SHAP_SUMMARY_PATH = os.path.join(os.path.dirname(__file__), '..', 'assets', 'shap_summary.png')
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+MODEL_PATH = os.path.join(ROOT, 'models', 'xgboost_model.pkl')
+SCALER_PATH = os.path.join(ROOT, 'models', 'scaler.pkl')
+METRICS_PATH = os.path.join(ROOT, 'assets', 'metrics.json')
+IMPORTANCE_PATH = os.path.join(ROOT, 'assets', 'feature_importance.csv')
+SHAP_BAR_PATH = os.path.join(ROOT, 'assets', 'shap_bar.png')
+SHAP_SUMMARY_PATH = os.path.join(ROOT, 'assets', 'shap_summary.png')
 
 
 @st.cache_resource
