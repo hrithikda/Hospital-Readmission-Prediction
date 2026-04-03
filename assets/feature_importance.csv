@@ -1,0 +1,14 @@
+feature,mean_abs_shap
+Expected Readmission Rate,0.03550717
+Predicted Readmission Rate,0.033041045
+Number of Discharges,0.01665194
+Number of Readmissions,0.013794581
+Facility_Name_Enc,0.009762786
+Measure Name_READM-30-HIP-KNEE-HRRP,0.002238079
+Measure Name_READM-30-CABG-HRRP,0.0008886981
+Measure Name_READM-30-HF-HRRP,0.000875434
+Measure Name_READM-30-COPD-HRRP,0.0003568225
+Measure Name_READM-30-PN-HRRP,0.00028043645
+State_Enc,0.00017875187
+Start Year,0.0
+End Year,0.0

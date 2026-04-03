@@ -1,143 +1,149 @@
+# Hospital Readmission Risk Predictor
 
-#  Hospital Readmission Prediction
+Predicting **Excess Readmission Ratios** for US hospitals using the FY2024 CMS Hospital Readmissions Reduction Program (HRRP) dataset. Hospitals with a ratio above 1.0 face CMS financial penalties. This system predicts which hospitals are at risk, quantifies how far they are from the benchmark, and explains the prediction at the feature level using SHAP.
 
-**Hospital Readmission Prediction** is a data science project that uses machine learning techniques to predict **Excess Readmission Ratios** for hospitals. The goal is to assist healthcare providers in identifying key factors leading to patient readmissions and optimizing strategies to improve patient care and hospital performance.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)](https://your-app-url.streamlit.app)
+[![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python)](https://python.org)
+[![XGBoost](https://img.shields.io/badge/XGBoost-2.1.4-FF6600?style=for-the-badge)](https://xgboost.readthedocs.io)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
----
+## Live Demo
 
-##  **Project Overview**
+[Hospital Readmission Risk Predictor on Streamlit](https://your-app-url.streamlit.app)
 
-Hospital readmissions are a critical metric for evaluating healthcare quality. Readmission penalties, like those under the **CMS Hospital Readmissions Reduction Program (HRRP)**, have made it essential for hospitals to track and minimize avoidable readmissions. 
+Enter hospital metrics, get a predicted Excess Readmission Ratio, and see a per-prediction SHAP waterfall chart explaining which features drove the result.
 
-This project involves:
-- Cleaning and analyzing a public dataset of hospital metrics.
-- Building machine learning models to predict the **Excess Readmission Ratio**, which compares a hospital's readmission performance to the national average.
-- Using advanced techniques like **SHAP (SHapley Additive Explanations)** to explain the contributions of individual features to model predictions.
+## Problem Statement
 
----
+Under the CMS HRRP, hospitals are penalized for excess readmissions across six conditions: AMI, CABG, COPD, Heart Failure, Hip/Knee Replacement, and Pneumonia. The Excess Readmission Ratio (ERR) compares a hospital's actual readmission rate to the national risk-adjusted benchmark. An ERR above 1.0 triggers financial penalties. Early identification of at-risk hospitals enables targeted intervention before penalties are applied.
 
-##  **Problem Statement**
+## Architecture
+```
+CMS FY2024 HRRP Dataset (CSV)
+    ↓
+src/preprocess.py
+    ├── KNN Imputation (missing clinical values)
+    ├── Target Encoding (Facility Name — high cardinality)
+    ├── Label Encoding (State)
+    └── One-Hot Encoding (Measure Name — 6 conditions)
+    ↓
+src/train.py
+    ├── Train/Test Split (80/20, random_state=42)
+    ├── StandardScaler
+    ├── XGBRegressor (n_estimators=200, lr=0.05, max_depth=6)
+    └── 5-Fold Cross Validation
+    ↓
+src/evaluate.py
+    ├── SHAP TreeExplainer
+    ├── Summary Plot + Bar Plot (saved to assets/)
+    ├── Feature Importance CSV
+    └── Binary Classification Metrics (threshold ERR=1.0)
+    ↓
+models/xgboost_model.pkl + models/scaler.pkl
+    ↓
+app/streamlit_app.py
+    ├── Tab 1: Predict — form input → scaled → model → ERR + SHAP waterfall
+    ├── Tab 2: Model Performance — metrics + SHAP summary plot
+    └── Tab 3: Feature Importance — ranked SHAP table + bar chart
+```
 
-### **Objective:**
-Predict whether hospitals have **excess readmission rates** and understand the **key drivers** of these predictions.
+## Tech Stack
 
-### **Challenges:**
-1. Handling missing data across several key columns.
-2. Encoding high-cardinality categorical features like hospital names.
-3. Balancing interpretability and prediction accuracy by evaluating multiple models.
+| Layer | Technology |
+|---|---|
+| ML Model | XGBoost 2.1.4 (XGBRegressor) |
+| Explainability | SHAP (TreeExplainer, waterfall, summary, bar plots) |
+| Preprocessing | scikit-learn (KNNImputer, StandardScaler, LabelEncoder) |
+| Feature Encoding | category-encoders (TargetEncoder for high-cardinality features) |
+| Data | pandas, numpy |
+| Dashboard | Streamlit 1.44 |
+| Visualization | Matplotlib, Plotly |
+| Serialization | joblib |
+| Language | Python 3.13 |
 
----
+## Model Results
 
-##  **Dataset Description**
+| Metric | Value |
+|---|---|
+| R² Score | 0.9480 |
+| CV R² Mean (5-fold) | 0.9378 |
+| CV R² Std | ±0.0031 |
+| MSE | 0.00019 |
+| Precision (ERR > 1.0) | 0.9773 |
+| Recall (ERR > 1.0) | 0.9663 |
+| F1 Score (ERR > 1.0) | 0.9718 |
 
-The project is based on the **FY 2024 CMS Hospital Readmissions Reduction Program dataset**. It includes metrics for ~18,000 hospitals across the US.
+Cross-validation std of ±0.0031 across 5 folds confirms the model is not overfit to the test split and generalizes consistently across data partitions.
 
-### **Key Features:**
-- **Facility Name**: Name of the hospital.
-- **State**: The state where the hospital is located.
-- **Number of Discharges**: The number of patient discharges (proxy for hospital size).
-- **Predicted Readmission Rate**: The expected rate of readmissions based on hospital characteristics.
-- **Expected Readmission Rate**: Benchmark rate for comparison.
-- **Excess Readmission Ratio**: Target variable, comparing hospital performance to the national average.
+## Key Features by SHAP Importance
 
-### **Target Variable:**
-- **Excess Readmission Ratio**: A value >1 indicates higher-than-expected readmissions, while <1 indicates better-than-expected performance.
+1. **Expected Readmission Rate** — national risk-adjusted benchmark for the condition
+2. **Predicted Readmission Rate** — hospital-specific predicted rate based on patient mix
+3. **Number of Discharges** — hospital volume proxy, correlates with case complexity
+4. **Number of Readmissions** — observed readmission count for the measure period
+5. **Facility Name (encoded)** — target-encoded hospital identity signal
+6. **Condition Measure** — one-hot flags for AMI, COPD, HF, Hip/Knee, Pneumonia, CABG
 
----
+## Project Structure
+```
+Hospital-Readmission-Prediction/
+├── app/
+│   └── streamlit_app.py          # Streamlit dashboard (3 tabs)
+├── src/
+│   ├── preprocess.py             # KNN imputation, encoding pipeline
+│   ├── train.py                  # XGBoost training, CV, scaler
+│   ├── evaluate.py               # SHAP analysis, binary metrics
+│   └── pipeline.py               # End-to-end runner
+├── data/
+│   └── cleaned_hospital_readmissions.csv
+├── models/
+│   ├── xgboost_model.pkl
+│   └── scaler.pkl
+├── assets/
+│   ├── shap_summary.png
+│   ├── shap_bar.png
+│   ├── feature_importance.csv
+│   └── metrics.json
+├── .streamlit/
+│   └── config.toml
+├── requirements.txt
+└── README.md
+```
 
-##  **Solution Workflow**
+## How to Run Locally
 
-### **1️⃣ Data Cleaning**
-- **Missing Values**:
-  - Numerical columns were imputed using **KNN Imputation** for better accuracy.
-  - Categorical columns like "Number of Readmissions" were converted to numeric, treating `"Too Few to Report"` as missing.
-- **Date Features**: Converted `Start Date` and `End Date` into year-based numerical features.
-
-### **2️⃣ Feature Engineering**
-- **Encoding Categorical Variables**:
-  - High-cardinality variables like `Facility Name` were encoded using **Target Encoding**.
-  - Categorical features like `State` were **Label Encoded**.
-  - Features with a small number of categories, such as `Measure Name`, were **One-Hot Encoded**.
-
-### **3️⃣ Model Training**
-Five models were trained for comparative analysis:
-1. **Linear Regression**: Baseline model for benchmarking.
-2. **Ridge Regression**: Adds L2 regularization to handle multicollinearity.
-3. **Lasso Regression**: Adds L1 regularization to perform feature selection.
-4. **XGBoost Regressor**: Advanced tree-based ensemble model for accurate predictions.
-5. **Neural Network**: A deep learning model for capturing complex patterns.
-
-### **4️⃣ Explainability (SHAP Analysis)**
-- Used **SHAP (SHapley Additive Explanations)** to analyze feature importance and understand how each feature contributes to the model's predictions.
-
----
-
-##  **Results & Insights**
-
-### **Model Performance**
-| Model             | Mean Squared Error (MSE) | R² Score |
-|-------------------|--------------------------|----------|
-| Linear Regression | 0.00067                  | 0.82051  |
-| Ridge Regression  | 0.00067                  | 0.82060  |
-| Lasso Regression  | 0.00372                  | -0.00051 |
-| XGBoost           | 0.00018                  | 0.95219  |
-| Neural Network    | 0.00009                  | 0.97474  |
-
-### **Key Features Identified (via SHAP)**
-1. **Predicted Readmission Rate**: The most critical predictor of excess readmission ratios.
-2. **Expected Readmission Rate**: A benchmark for evaluating hospital performance.
-3. **Number of Discharges**: Larger hospitals tend to have higher readmissions.
-
----
-
-## 📂 **Project Structure**
-
-📂 Hospital-Readmission-Prediction ├── hospital_readmission_prediction.ipynb # Jupyter Notebook (Main file) ├── 📁 data/ │ └── cleaned_hospital_readmissions.csv # Cleaned dataset ├── 📁 models/ │ ├── xgboost_model.pkl # Saved XGBoost model │ ├── neural_network_model.h5 # Saved Neural Network model ├── train_model.py # Python script for training ├── requirements.txt # Dependencies ├── README.md # Project documentation
-
-yaml
-Copy
-Edit
-
----
-
-##  **How to Run the Project**
-
-### **Clone the Repository**
+**Clone the repo**
 ```bash
 git clone https://github.com/hrithikda/Hospital-Readmission-Prediction.git
 cd Hospital-Readmission-Prediction
-Install Dependencies
-bash
-Copy
-Edit
+```
+
+**Set up the environment**
+```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-Run the Training Script
-bash
-Copy
-Edit
-python train_model.py
-Run the Notebook
-Open hospital_readmission_prediction.ipynb in Jupyter Notebook or Google Colab.
-Follow the steps for data preprocessing, model training, and evaluation.
-🛠️ Technologies Used
-Languages & Libraries:
-Python, Pandas, NumPy, Scikit-learn, TensorFlow, XGBoost, SHAP
-Tools:
-Google Colab for notebook development
-GitHub for version control and sharing
-Models:
-Regression (Linear, Ridge, Lasso)
-Advanced Ensemble Models (XGBoost)
-Deep Learning (Neural Networks)
-📬 Contact
-Author: Hrithik Dasharatha Angadi
-GitHub: github.com/hrithikda
-LinkedIn: linkedin.com/in/hrithikda
-📜 License
-This project is licensed under the MIT License.
+```
 
-yaml
-Copy
-Edit
+**Run the full pipeline (retrain model + regenerate SHAP plots)**
+```bash
+python src/pipeline.py
+```
 
----
+**Launch the Streamlit app**
+```bash
+python -m streamlit run app/streamlit_app.py
+```
+
+## Model Limitations
+
+The top SHAP features (Expected Readmission Rate, Predicted Readmission Rate) are derived from the same CMS formula as the target variable (ERR). The model is highly accurate at replicating the CMS ratio calculation but operates within the same feature space as the regulatory formula. It is best interpreted as a **regulatory risk classifier** for flagging penalty-at-risk hospitals, not as an independent clinical predictor of patient outcomes.
+
+## Dataset
+
+**FY2024 CMS Hospital Readmissions Reduction Program** — publicly available from the Centers for Medicare and Medicaid Services. 18,774 hospital-condition records across 6 readmission measures tracked under HRRP.
+
+## Author
+
+**Hrithik Dasharatha Angadi**
+[GitHub](https://github.com/hrithikda) — [LinkedIn](https://linkedin.com/in/hrithikda) — hrithikda@gmail.com
