@@ -7,6 +7,8 @@ Predicting **Excess Readmission Ratios** for US hospitals using the FY2024 CMS H
 [![XGBoost](https://img.shields.io/badge/XGBoost-2.1.4-FF6600?style=for-the-badge)](https://xgboost.readthedocs.io)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
+![Demo](assets/demo.png)
+
 ## Live Demo
 
 [Hospital Readmission Risk Predictor on Streamlit](https://your-app-url.streamlit.app)
